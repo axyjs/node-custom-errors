@@ -1,7 +1,5 @@
 "use strict";
 
-var ce = require("./src/customErrors.js");
-
 module.exports = function (grunt) {
 
     grunt.initConfig({
@@ -10,20 +8,21 @@ module.exports = function (grunt) {
             options: {
                 jshintrc: ".jshintrc"
             },
-            src: {
-                src: "src/**/*.js"
-            }
+            src: "src/**/*.js"
         },
         jsonlint: {
-            pkg: {
-                src: ["package.json"]
-            }
+            pkg: ["package.json"]
+        },
+        nodeunit: {
+            all: ["test/*_test.js"]
         }
     });
 
     grunt.loadNpmTasks("grunt-contrib-jshint");
     grunt.loadNpmTasks("grunt-jsonlint");
+    grunt.loadNpmTasks("grunt-contrib-nodeunit");
 
     grunt.registerTask("hint", ["jshint", "jsonlint"]);
-    grunt.registerTask("default", ["hint"]);
+    grunt.registerTask("test", ["nodeunit"]);
+    grunt.registerTask("default", ["hint", "test"]);
 };
