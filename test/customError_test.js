@@ -54,11 +54,145 @@ module.exports.testCreateAbstract = function (test) {
         e = new Concrete();
     test.equals(e.message, "def");
     test.ok(e instanceof Base);
-    try {
+    test.throws(function () {
         e = new Base();
-        test.ok(false, "Base throws AbstractError");
-    } catch (e) {
-        test.ok(e instanceof customErrors.AbstractError);
-    }
+    }, customErrors.AbstractError);
+    test.done();
+};
+
+module.exports.testBlockCreate = function (test) {
+    /* jshint maxstatements: 30 */
+    var errors, block, e;
+    errors = {
+        "One": true,
+        "Two": "One",
+        "Three": false,
+        "Four": TypeError,
+        "Five": ["One", "def message"],
+        "Six": [true, "", true]
+    };
+    block = new customErrors.Block(errors, "my.ns");
+    test.ok(block.created);
+    test.equals(typeof block.Base, "function");
+    test.equals(typeof block.One, "function");
+    test.equals(typeof block.Two, "function");
+    test.equals(typeof block.Three, "function");
+    test.equals(typeof block.Four, "function");
+    test.equals(typeof block.Five, "function");
+    e = new block.Two();
+    test.ok(e instanceof Error);
+    test.ok(e instanceof block.Base);
+    test.ok(e instanceof block.One);
+    test.ok(e instanceof block.Two);
+    test.equals(e.name, "my.ns.Two");
+    e = new block.Three();
+    test.ok(e instanceof Error);
+    test.ok(!(e instanceof block.Base));
+    e = new block.Five();
+    test.ok(e instanceof block.One);
+    test.equals(e.message, "def message");
+    test.equals(block.Four, TypeError);
+    test.throws(function () {
+        e = new block.Base();
+    }, customErrors.AbstractError);
+    test.throws(function () {
+        e = new block.Six();
+    }, customErrors.AbstractError);
+    test.done();
+};
+
+module.exports.testBlockGetAndRaise = function (test) {
+    var errors, block;
+    errors = {
+        "One": true,
+        "Two": "One"
+    };
+    block = new customErrors.Block(errors, "my.ns");
+    test.equals(block.get("Two"), block.Two);
+    test.throws(function () {
+        block.raise("Two", "two message");
+    }, block.Two, "two message");
+    test.throws(function () {
+        block.get("three");
+    }, customErrors.Block.ErrorNotFound);
+    test.throws(function () {
+        block.raise("Three", "three message");
+    }, customErrors.Block.ErrorNotFound);
+    test.done();
+};
+
+module.exports.testLazy = function (test) {
+    /* jshint maxstatements: 30 */
+    var errors, block, e, Two;
+    errors = {
+        "One": true,
+        "Two": "One",
+        "Three": true
+    };
+    block = new customErrors.Block(errors, "", true, true);
+    test.ok(!block.created);
+    test.ok(!block.Base);
+    test.ok(!block.One);
+    test.ok(!block.Two);
+    test.ok(!block.Three);
+    Two = block.get("Two");
+    e = new Two();
+    test.ok(!block.created);
+    test.ok(block.Base);
+    test.ok(block.One);
+    test.ok(block.Two);
+    test.ok(!block.Three);
+    test.ok(e instanceof block.Base);
+    test.ok(e instanceof block.One);
+    test.ok(e instanceof block.Two);
+    block.createAll();
+    test.ok(block.created);
+    test.ok(block.Base);
+    test.ok(block.One);
+    test.ok(block.Two);
+    test.ok(block.Three);
+    test.ok(e instanceof block.Base);
+    test.ok(e instanceof block.One);
+    test.ok(e instanceof block.Two);
+    test.ok(!(e instanceof block.Three));
+    test.done();
+};
+
+module.exports.testBlockErrorFormat = function (test) {
+    var errors;
+    errors = {
+        "One": true,
+        "Two": "three"
+    };
+    test.throws(function () {
+        return new customErrors.Block(errors);
+    }, customErrors.Block.ErrorNotFound);
+    test.done();
+};
+
+module.exports.testBlockOtherBase = function (test) {
+    var errors, block, e;
+    errors = {
+        "One": true,
+        "Two": "One"
+    };
+    block = new customErrors.Block(errors, "", "Root");
+    test.ok(!block.Base);
+    test.ok(block.Root);
+    e = new block.Two();
+    test.ok(e instanceof block.Root);
+    test.done();
+};
+
+module.exports.testBlockWithoutBase = function (test) {
+    var errors, block, e;
+    errors = {
+        "One": true,
+        "Two": "One"
+    };
+    block = new customErrors.Block(errors, "", TypeError);
+    test.ok(!block.Base);
+    e = new block.Two();
+    test.ok(e instanceof TypeError);
     test.done();
 };
