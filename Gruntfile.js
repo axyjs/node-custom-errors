@@ -8,7 +8,9 @@ module.exports = function (grunt) {
             options: {
                 jshintrc: ".jshintrc"
             },
-            src: "src/**/*.js"
+            src: "src/**/*.js",
+            test: "test/**/*.js",
+            gruntfile: "Gruntfile.js"
         },
         jsonlint: {
             pkg: ["package.json"]
