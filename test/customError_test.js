@@ -20,12 +20,22 @@ module.exports.create = {
         var One = customErrors.create("One", TypeError),
             Two = customErrors.create("Two", One),
             Three = Two.inherit("Three"),
-            e = new Three();
-        test.ok(e instanceof Error);
-        test.ok(e instanceof TypeError);
-        test.ok(e instanceof One);
-        test.ok(e instanceof Two);
-        test.ok(e instanceof Three);
+            Four = Two.inherit({
+                name: "Four",
+                construct: function (x) {
+                    this.message = "x = " + x;
+                }
+            }),
+            e3 = new Three(),
+            e4 = new Four(4);
+        test.ok(e3 instanceof Error);
+        test.ok(e3 instanceof TypeError);
+        test.ok(e3 instanceof One);
+        test.ok(e3 instanceof Two);
+        test.ok(e3 instanceof Three);
+        test.ok(e4 instanceof Two);
+        test.equals(e4.name, "Four");
+        test.equals(e4.message, "x = 4");
         test.done();
     },
 
