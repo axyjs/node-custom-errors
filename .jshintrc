@@ -18,7 +18,7 @@
     "immed": true, 
        
     "nomen": false,    
-    "quotmark": false,    
+    "quotmark": false,
     
     "maxparams": 5,
     "maxdepth": 5,
@@ -27,9 +27,5 @@
     "maxlen": 120,
     "indent": 4,    
     
-    "node": true,
-    
-    "globals": {
-        "go": false
-    }
+    "node": true
 }

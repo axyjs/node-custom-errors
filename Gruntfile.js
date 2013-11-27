@@ -13,7 +13,8 @@ module.exports = function (grunt) {
             gruntfile: "Gruntfile.js"
         },
         jsonlint: {
-            pkg: ["package.json"]
+            pkg: ["package.json"],
+            hint: [".jshintrc"]
         },
         nodeunit: {
             all: ["test/*_test.js"]
