@@ -38,7 +38,7 @@ module.exports.create = {
         test.done();
     },
 
-    testCreateStack: function (test) {
+    testStack: function (test) {
         var CustomE = customErrors.create("CustomE"),
             stack = (new Error()).stack.split("\n"),
             e = new CustomE("msg"),
@@ -49,7 +49,7 @@ module.exports.create = {
         test.done();
     },
 
-    testCreateAbstract: function (test) {
+    testAbstract: function (test) {
         var Base = customErrors.create("Base", Error, null, true),
             Concrete = Base.inherit(Base, "def"),
             e = new Concrete();
@@ -58,6 +58,20 @@ module.exports.create = {
         test.throws(function () {
             e = new Base();
         }, customErrors.AbstractError);
+        test.done();
+    },
+
+    testArgumentsAsParams: function (test) {
+        var CustomE, e;
+        CustomE = customErrors.create({
+            name: "MyError",
+            parent: TypeError,
+            defmessage: "default message"
+        });
+        e = new CustomE();
+        test.ok(e instanceof TypeError);
+        test.equals(e.name, "MyError");
+        test.equals(e.message, "default message");
         test.done();
     }
 };
