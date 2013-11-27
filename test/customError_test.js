@@ -73,6 +73,24 @@ module.exports.create = {
         test.equals(e.name, "MyError");
         test.equals(e.message, "default message");
         test.done();
+    },
+
+    testCustomConstruct: function (test) {
+        var PropNotFound, e;
+        PropNotFound = customErrors.create({
+            name: "PropNotFound",
+            construct: function (container, property) {
+                this.container = container;
+                this.property = property;
+                this.message = "'" + property + "' is not found in '" + container + "'";
+            }
+        });
+        e = new PropNotFound("MyService", "undef");
+        test.equals(e.name, "PropNotFound");
+        test.equals(e.container, "MyService");
+        test.equals(e.property, "undef");
+        test.equals(e.message, "'undef' is not found in 'MyService'");
+        test.done();
     }
 };
 
@@ -219,8 +237,14 @@ module.exports.block = {
         errors = {
             "One": true,
             "Two": {
-                "parent": "One",
-                "defmessage": "def message"
+                parent: "One",
+                defmessage: "def message"
+            },
+            "Three": {
+                construct: function (a) {
+                    this.a = a;
+                    this.message = "a = " + a;
+                }
             }
         };
         block = new customErrors.Block(errors, "ns");
@@ -228,6 +252,11 @@ module.exports.block = {
         test.ok(e instanceof block.One);
         test.equals(e.message, "def message");
         test.equals(e.name, "ns.Two");
+        e = new block.Three(2);
+        test.ok(e instanceof block.Base);
+        test.equals(e.a, 2);
+        test.equals(e.message, "a = 2");
+        test.equals(e.name, "ns.Three");
         test.done();
     }
 };
