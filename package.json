@@ -8,6 +8,23 @@
         "name": "Oleg Grigoriev",
         "url": "https://github.com/vasa-c"
     },
+    "main": "./lib/customErrors",
+    "engines": {
+        "node": "*"
+    },
+    "files": [
+        "lib/customErrors.js"
+    ],
+    "scripts": {
+        "test": "grunt test hint"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "grunt": "~0.4.1",
+        "grunt-contrib-jshint": "~0.7.0",
+        "grunt-jsonlint": "~1.0.1",
+        "grunt-contrib-nodeunit": "~0.2.2"
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/axyjs/node-custom-errors.git"
@@ -23,17 +40,5 @@
             "type": "MIT",
             "url": "https://github.com/axyjs/node-custom-errors/blob/master/LICENSE"
         }
-    ],
-    "dependencies": {},
-    "devDependencies": {
-        "grunt": "~0.4.1",
-        "grunt-contrib-jshint": "~0.7.0",
-        "grunt-jsonlint": "~1.0.1",
-        "grunt-contrib-nodeunit": "~0.2.2"
-    },
-    "main": "./lib/customErrors",
-    "engines": {
-        "node": "*"
-    }    
+    ]
 }
-
