@@ -212,5 +212,22 @@ module.exports.block = {
         e = new block.Two();
         test.ok(e instanceof TypeError);
         test.done();
+    },
+
+    testDictParams: function (test) {
+        var errors, block, e;
+        errors = {
+            "One": true,
+            "Two": {
+                "parent": "One",
+                "defmessage": "def message"
+            }
+        };
+        block = new customErrors.Block(errors, "ns");
+        e = new block.Two();
+        test.ok(e instanceof block.One);
+        test.equals(e.message, "def message");
+        test.equals(e.name, "ns.Two");
+        test.done();
     }
 };
