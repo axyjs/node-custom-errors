@@ -1,6 +1,6 @@
 "use strict";
 
-var customErrors = require("./../src/customErrors.js");
+var customErrors = require("./../lib/customErrors");
 
 module.exports.testCreate = function (test) {
     var CustomE = customErrors.create("CustomE");

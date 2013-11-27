@@ -31,7 +31,7 @@
         "grunt-jsonlint": "~1.0.1",
         "grunt-contrib-nodeunit": "~0.2.2"
     },
-    "main": "./src/customErrors",
+    "main": "./lib/customErrors",
     "engines": {
         "node": "*"
     }    

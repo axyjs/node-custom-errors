@@ -8,7 +8,7 @@ module.exports = function (grunt) {
             options: {
                 jshintrc: ".jshintrc"
             },
-            src: "src/**/*.js",
+            src: "lib/**/*.js",
             test: "test/**/*.js",
             gruntfile: "Gruntfile.js"
         },
