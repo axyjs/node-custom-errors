@@ -13,7 +13,8 @@
         "node": "*"
     },
     "files": [
-        "lib/customErrors.js"
+        "lib/customErrors.js",
+        "LICENSE"
     ],
     "scripts": {
         "test": "grunt test hint"
