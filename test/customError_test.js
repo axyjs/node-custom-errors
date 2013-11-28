@@ -268,5 +268,30 @@ module.exports.block = {
         test.equals(e.message, "a = 2");
         test.equals(e.name, "ns.Three");
         test.done();
+    },
+
+    testLazyGetBase: function (test) {
+        var errors, block, Base, e, One;
+        errors = {
+            One: true
+        };
+        block = new customErrors.Block(errors, "ns", null);
+        Base = block.get("Base");
+        test.equals(typeof Base, "function");
+        One = block.get("One");
+        e = new One();
+        test.ok(e instanceof Base);
+        test.equals(block.Base, Base);
+        block = new customErrors.Block(errors, "ns", "Root");
+        test.throws(function () {
+            block.get("Base");
+        }, customErrors.Block.ErrorNotFound());
+        Base = block.get("Root");
+        test.equals(typeof Base, "function");
+        One = block.get("One");
+        e = new One();
+        test.ok(e instanceof Base);
+        test.equals(block.Root, Base);
+        test.done();
     }
 };
