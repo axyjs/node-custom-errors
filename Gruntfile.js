@@ -18,6 +18,11 @@ module.exports = function (grunt) {
         },
         nodeunit: {
             all: ["test/*_test.js"]
+        },
+        checkver: {
+            options: {
+                version: "<%= pkg.version %>"
+            }
         }
     });
 
@@ -25,7 +30,27 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks("grunt-jsonlint");
     grunt.loadNpmTasks("grunt-contrib-nodeunit");
 
-    grunt.registerTask("hint", ["jshint", "jsonlint"]);
+    grunt.registerTask("checkver", "Check version", function () {
+        var version = this.options().version,
+            fs = require("fs"),
+            content;
+        content = fs.readFileSync("./lib/customErrors.js", {encoding: "utf-8"});
+        if (content.indexOf("@version " + version) === -1) {
+            grunt.log.error("Invalid version in customErrors.js");
+            return false;
+        } else {
+            grunt.log.writeln("customErrors.js checked");
+        }
+        content = fs.readFileSync("./README.md", {encoding: "utf-8"});
+        if (content.indexOf("Current version: " + version) === -1) {
+            grunt.log.error("Invalid version in README.md");
+            return false;
+        } else {
+            grunt.log.writeln("README.md checked");
+        }
+    });
+
+    grunt.registerTask("hint", ["jshint", "jsonlint", "checkver"]);
     grunt.registerTask("test", ["nodeunit"]);
     grunt.registerTask("default", ["hint", "test"]);
 };
