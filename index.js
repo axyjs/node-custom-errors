@@ -31,6 +31,11 @@ function create(name, parent, defmessage, abstract, construct) {
         return create(name.name, name.parent, name.defmessage, name.abstract, name.construct);
     }
     parent = parent || global.Error;
+    if ((defmessage === null) || (defmessage === undefined)) {
+        if (parent.prototype.hasOwnProperty("message")) {
+            defmessage = parent.prototype.message;
+        }
+    }
     function CustomError(message) {
         var stack;
         if (abstract) {

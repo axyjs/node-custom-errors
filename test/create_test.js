@@ -6,6 +6,7 @@
 var ce = require("../");
 
 module.exports = {
+
     testCreate: function (test) {
         var CustomE = ce.create("CustomE");
         try {
@@ -42,12 +43,23 @@ module.exports = {
         test.done();
     },
 
-    testMessage: function (test) {
+    testDefmessage: function (test) {
         var CustomE = ce.create("CustomE", Error, "default message"),
             e1 = new CustomE(),
             e2 = new CustomE("message");
         test.equals(e1.message, "default message");
         test.equals(e2.message, "message");
+        test.done();
+    },
+    
+    testInheritDefmessage: function (test) {
+        var One = ce.create("One", null, "one def"),
+            Two = One.inherit("Two"),
+            Three = Two.inherit("Three", "three def");
+        test.equals((new One()).message, "one def");
+        test.equals((new Two()).message, "one def");
+        test.equals((new Two("msg")).message, "msg");
+        test.equals((new Three()).message, "three def");
         test.done();
     },
 
