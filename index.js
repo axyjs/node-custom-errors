@@ -8,7 +8,7 @@
 
 "use strict";
 
-var Block, AbstractError;
+var Block, AbstractError, helpers;
 
 /**
  * Create a custom error class
@@ -63,35 +63,45 @@ function create(name, parent, defmessage, abstract, construct) {
     CustomError.prototype.constructor = CustomError;
     CustomError.prototype.name = name;
     CustomError.prototype.message = defmessage;
-    CustomError.prototype.parent = parent;
+    CustomError.prototype.parent = helpers.parent;
     CustomError.name = name;
     CustomError.ce = {
         parent: parent,
         defmessage: defmessage,
         construct: construct
     };
-    CustomError.inherit = function inherit(name, defmessage, abstract, construct) {
-        if (typeof name === "object") {
-            name.parent = CustomError;
-            return create(name);
-        }
-        return create(name, CustomError, defmessage, abstract, construct);
-    };
+    CustomError.inherit = helpers.inherit;
     CustomError.toString = function () {
         return "[Error class " + name + "]";
     };
     return CustomError;
 }
 
-function parent() {
-    var ce = this.constructor.ce;   
-    if (ce && ce.parent) {
-        ce = ce.parent.ce;
-        if (ce && (typeof ce.construct === "function")) {
-            ce.construct.apply(this, arguments);
+helpers = {
+    /**
+     * CustomErrors#parent
+     */
+    parent: function parent() {
+        var ce = this.constructor.ce;
+        if (ce && ce.parent) {
+            ce = ce.parent.ce;
+            if (ce && (typeof ce.construct === "function")) {
+                ce.construct.apply(this, arguments);
+            }
         }
+    },
+
+    /**
+     * CustomErrors.inherit
+     */
+    inherit: function inherit(name, defmessage, abstract, construct) {
+        if (typeof name === "object") {
+            name.parent = this;
+            return create(name);
+        }
+        return create(name, this, defmessage, abstract, construct);
     }
-}
+};
 
 AbstractError = create({
     name: "customErrors.AbstractError",
