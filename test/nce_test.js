@@ -1,10 +1,10 @@
 "use strict";
 
-var customErrors = require("./../lib/customErrors");
+var ce = require("../");
 
 module.exports.create = {
     testCreate: function (test) {
-        var CustomE = customErrors.create("CustomE");
+        var CustomE = ce.create("CustomE");
         try {
             throw new CustomE("message");
         } catch (e) {
@@ -17,8 +17,8 @@ module.exports.create = {
     },
 
     testInherit: function (test) {
-        var One = customErrors.create("One", TypeError),
-            Two = customErrors.create("Two", One),
+        var One = ce.create("One", TypeError),
+            Two = ce.create("Two", One),
             Three = Two.inherit("Three"),
             Four = Two.inherit({
                 name: "Four",
@@ -40,7 +40,7 @@ module.exports.create = {
     },
 
     testMessage: function (test) {
-        var CustomE = customErrors.create("CustomE", Error, "default message"),
+        var CustomE = ce.create("CustomE", Error, "default message"),
             e1 = new CustomE(),
             e2 = new CustomE("message");
         test.equals(e1.message, "default message");
@@ -49,7 +49,7 @@ module.exports.create = {
     },
 
     testStack: function (test) {
-        var CustomE = customErrors.create("CustomE"),
+        var CustomE = ce.create("CustomE"),
             stack = (new Error()).stack.split("\n"),
             e = new CustomE("msg"),
             estack = e.stack.split("\n");
@@ -60,20 +60,20 @@ module.exports.create = {
     },
 
     testAbstract: function (test) {
-        var Base = customErrors.create("Base", Error, null, true),
+        var Base = ce.create("Base", Error, null, true),
             Concrete = Base.inherit(Base, "def"),
             e = new Concrete();
         test.equals(e.message, "def");
         test.ok(e instanceof Base);
         test.throws(function () {
             e = new Base();
-        }, customErrors.AbstractError);
+        }, ce.AbstractError);
         test.done();
     },
 
     testArgumentsAsParams: function (test) {
         var CustomE, e;
-        CustomE = customErrors.create({
+        CustomE = ce.create({
             name: "MyError",
             parent: TypeError,
             defmessage: "default message"
@@ -87,7 +87,7 @@ module.exports.create = {
 
     testCustomConstruct: function (test) {
         var PropNotFound, e;
-        PropNotFound = customErrors.create({
+        PropNotFound = ce.create({
             name: "PropNotFound",
             construct: function (container, property) {
                 this.container = container;
@@ -116,7 +116,7 @@ module.exports.block = {
             "Five": ["One", "def message"],
             "Six": [true, "", true]
         };
-        block = new customErrors.Block(errors, "my.ns");
+        block = new ce.Block(errors, "my.ns");
         test.ok(block.created);
         test.equals(typeof block.Base, "function");
         test.equals(typeof block.One, "function");
@@ -139,10 +139,10 @@ module.exports.block = {
         test.equals(block.Four, TypeError);
         test.throws(function () {
             e = new block.Base();
-        }, customErrors.AbstractError);
+        }, ce.AbstractError);
         test.throws(function () {
             e = new block.Six();
-        }, customErrors.AbstractError);
+        }, ce.AbstractError);
         test.done();
     },
 
@@ -152,17 +152,17 @@ module.exports.block = {
             "One": true,
             "Two": "One"
         };
-        block = new customErrors.Block(errors, "my.ns");
+        block = new ce.Block(errors, "my.ns");
         test.equals(block.get("Two"), block.Two);
         test.throws(function () {
             block.raise("Two", "two message");
         }, block.Two, "two message");
         test.throws(function () {
             block.get("three");
-        }, customErrors.Block.ErrorNotFound);
+        }, ce.Block.ErrorNotFound);
         test.throws(function () {
             block.raise("Three", "three message");
-        }, customErrors.Block.ErrorNotFound);
+        }, ce.Block.ErrorNotFound);
         test.done();
     },
 
@@ -174,7 +174,7 @@ module.exports.block = {
             "Two": "One",
             "Three": true
         };
-        block = new customErrors.Block(errors, "", true, true);
+        block = new ce.Block(errors, "", true, true);
         test.ok(!block.created);
         test.ok(!block.Base);
         test.ok(!block.One);
@@ -210,8 +210,8 @@ module.exports.block = {
             "Two": "three"
         };
         test.throws(function () {
-            return new customErrors.Block(errors);
-        }, customErrors.Block.ErrorNotFound);
+            return new ce.Block(errors);
+        }, ce.Block.ErrorNotFound);
         test.done();
     },
 
@@ -221,7 +221,7 @@ module.exports.block = {
             "One": true,
             "Two": "One"
         };
-        block = new customErrors.Block(errors, "", "Root");
+        block = new ce.Block(errors, "", "Root");
         test.ok(!block.Base);
         test.ok(block.Root);
         e = new block.Two();
@@ -235,7 +235,7 @@ module.exports.block = {
             "One": true,
             "Two": "One"
         };
-        block = new customErrors.Block(errors, "", TypeError);
+        block = new ce.Block(errors, "", TypeError);
         test.ok(!block.Base);
         e = new block.Two();
         test.ok(e instanceof TypeError);
@@ -257,7 +257,7 @@ module.exports.block = {
                 }
             }
         };
-        block = new customErrors.Block(errors, "ns");
+        block = new ce.Block(errors, "ns");
         e = new block.Two();
         test.ok(e instanceof block.One);
         test.equals(e.message, "def message");
@@ -275,17 +275,17 @@ module.exports.block = {
         errors = {
             One: true
         };
-        block = new customErrors.Block(errors, "ns", null);
+        block = new ce.Block(errors, "ns", null);
         Base = block.get("Base");
         test.equals(typeof Base, "function");
         One = block.get("One");
         e = new One();
         test.ok(e instanceof Base);
         test.equals(block.Base, Base);
-        block = new customErrors.Block(errors, "ns", "Root");
+        block = new ce.Block(errors, "ns", "Root");
         test.throws(function () {
             block.get("Base");
-        }, customErrors.Block.ErrorNotFound());
+        }, ce.Block.ErrorNotFound());
         Base = block.get("Root");
         test.equals(typeof Base, "function");
         One = block.get("One");

@@ -34,7 +34,7 @@ module.exports = function (grunt) {
         var version = this.options().version,
             fs = require("fs"),
             content;
-        content = fs.readFileSync("./lib/customErrors.js", {encoding: "utf-8"});
+        content = fs.readFileSync("./index.js", {encoding: "utf-8"});
         if (content.indexOf("@version " + version) === -1) {
             grunt.log.error("Invalid version in customErrors.js");
             return false;

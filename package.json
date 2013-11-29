@@ -1,19 +1,19 @@
 {
-    "name": "customErrors",
+    "name": "node-custom-errors",
     "title": "Node.js custom errors",
     "description": "Creating custom exception classes (node.js)",
-    "version": "0.1.0-rc1",
+    "version": "0.1.1",
     "homepage": "https://github.com/axyjs/node-custom-errors",
     "author": {
         "name": "Oleg Grigoriev",
         "url": "https://github.com/vasa-c"
     },
-    "main": "./lib/customErrors",
+    "main": "./index.js",
     "engines": {
         "node": "*"
     },
     "files": [
-        "lib/customErrors.js",
+        "index.js",
         "LICENSE"
     ],
     "scripts": {
