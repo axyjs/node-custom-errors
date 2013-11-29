@@ -116,6 +116,32 @@ module.exports = {
         test.equals(e.property, "undef");
         test.equals(e.message, "'undef' is not found in 'MyService'");
         test.done();
+    },
+    
+    testInheritCustomConstruct: function (test) {
+        var One = ce.create({
+                name: "One",
+                construct: function (a, b) {
+                    this.a = a;
+                    this.b = b;
+                    this.message = a + " + " + b + " = " + (a + b);
+                }
+            }),
+            Two = One.inherit("Two"),
+            Three = Two.inherit({
+                name: "Three",
+                construct: function (a, b, c) {
+                    this.parent(a, b);
+                    this.c = c;
+                }
+            }),
+            e2 = new Two(1, 2),
+            e3 = new Three(3, 4, 5);
+        test.equals(e2.message, "1 + 2 = 3");
+        test.equals(e3.a, 3);
+        test.equals(e3.b, 4);
+        test.equals(e3.c, 5);
+        test.done();
     }
 };
 

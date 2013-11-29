@@ -32,8 +32,15 @@ function create(name, parent, defmessage, abstract, construct) {
     }
     parent = parent || global.Error;
     if ((defmessage === null) || (defmessage === undefined)) {
-        if (parent.prototype.hasOwnProperty("message")) {
-            defmessage = parent.prototype.message;
+        if (parent.ce && parent.ce.hasOwnProperty("defmessage")) {
+            defmessage = parent.ce.defmessage;
+        }
+    }
+    if (typeof construct !== "function") {
+        if (parent.ce && (typeof parent.ce.construct === "function")) {
+            construct = parent.ce.construct;
+        } else {
+            construct = null;
         }
     }
     function CustomError(message) {
@@ -56,7 +63,13 @@ function create(name, parent, defmessage, abstract, construct) {
     CustomError.prototype.constructor = CustomError;
     CustomError.prototype.name = name;
     CustomError.prototype.message = defmessage;
+    CustomError.prototype.parent = parent;
     CustomError.name = name;
+    CustomError.ce = {
+        parent: parent,
+        defmessage: defmessage,
+        construct: construct
+    };
     CustomError.inherit = function inherit(name, defmessage, abstract, construct) {
         if (typeof name === "object") {
             name.parent = CustomError;
@@ -68,6 +81,16 @@ function create(name, parent, defmessage, abstract, construct) {
         return "[Error class " + name + "]";
     };
     return CustomError;
+}
+
+function parent() {
+    var ce = this.constructor.ce;   
+    if (ce && ce.parent) {
+        ce = ce.parent.ce;
+        if (ce && (typeof ce.construct === "function")) {
+            ce.construct.apply(this, arguments);
+        }
+    }
 }
 
 AbstractError = create({
