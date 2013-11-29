@@ -1,4 +1,6 @@
-# Creating custom exception classes (node.js)
+# Creating custom exception classes
+
+Platform: node.js
 
 Current version: 0.1.1
 
