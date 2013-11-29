@@ -36,7 +36,7 @@ module.exports = function (grunt) {
             content;
         content = fs.readFileSync("./index.js", {encoding: "utf-8"});
         if (content.indexOf("@version " + version) === -1) {
-            grunt.log.error("Invalid version in customErrors.js");
+            grunt.log.error("Invalid version in index.js");
             return false;
         } else {
             grunt.log.writeln("customErrors.js checked");
