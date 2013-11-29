@@ -1,7 +1,7 @@
 /**
  * Creating custom exception classes
  *
- * @version 0.1.1
+ * @version 0.1.2
  * @author Oleg Grigoriev <go.vasac@gmail.com>
  * @license MIT https://github.com/axyjs/node-custom-errors/blob/master/LICENSE
  */
