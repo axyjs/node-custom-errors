@@ -7,52 +7,62 @@ var ce = require("../index.js");
 
 module.exports = {
 
-    testCreate: function (test) {
-        var CustomE = ce.create("CustomE");
+    testErrorCreate: function (test) {
+        var CE = ce.create("CE");
+        test.equals(typeof CE, "function");
         try {
-            throw new CustomE("message");
+            throw new CE("message");
         } catch (e) {
-            test.ok(e instanceof CustomE);
+            test.ok(e instanceof CE);
             test.ok(e instanceof Error);
-            test.equals(e.message, "message");
-            test.equals(e.name, "CustomE");
+            test.equals(e.name, "CE");
         }
         test.done();
     },
 
+    testMessage: function (test) {
+        var CE = ce.create("CE"),
+            e = new CE("Error message");
+        test.equals(e.message, "Error message");
+        test.done();
+    },
+
+    testParent: function (test) {
+        var Parent = ce.create("Parent", TypeError),
+            Child = ce.create("Child", Parent),
+            e = new Child();
+        test.ok(e instanceof Error);
+        test.ok(e instanceof TypeError);
+        test.ok(e instanceof Parent);
+        test.ok(e instanceof Child);
+        test.equals(e.name, "Child");
+        test.done();
+    },
+
     testInherit: function (test) {
-        var One = ce.create("One", TypeError),
-            Two = ce.create("Two", One),
-            Three = Two.inherit("Three"),
-            Four = Two.inherit({
-                name: "Four",
-                construct: function (x) {
-                    this.message = "x = " + x;
-                }
-            }),
-            e3 = new Three(),
-            e4 = new Four(4);
-        test.ok(e3 instanceof Error);
-        test.ok(e3 instanceof TypeError);
-        test.ok(e3 instanceof One);
-        test.ok(e3 instanceof Two);
-        test.ok(e3 instanceof Three);
-        test.ok(e4 instanceof Two);
-        test.equals(e4.name, "Four");
-        test.equals(e4.message, "x = 4");
+        var Parent = ce.create("Parent", TypeError),
+            Child = Parent.inherit("Child"),
+            e;
+        test.equals(typeof Child, "function");
+        e = new Child();
+        test.ok(e instanceof Error);
+        test.ok(e instanceof TypeError);
+        test.ok(e instanceof Parent);
+        test.ok(e instanceof Child);
+        test.equals(e.name, "Child");
         test.done();
     },
 
     testDefmessage: function (test) {
-        var CustomE = ce.create("CustomE", Error, "default message"),
-            e1 = new CustomE(),
-            e2 = new CustomE("message");
+        var CE = ce.create("CE", null, "default message"),
+            e1 = new CE(),
+            e2 = new CE("message");
         test.equals(e1.message, "default message");
         test.equals(e2.message, "message");
         test.done();
     },
     
-    testInheritDefmessage: function (test) {
+    testDefmessageInherit: function (test) {
         var One = ce.create("One", null, "one def"),
             Two = One.inherit("Two"),
             Three = Two.inherit("Three", "three def");
@@ -64,13 +74,16 @@ module.exports = {
     },
 
     testStack: function (test) {
-        var CustomE = ce.create("CustomE"),
+        var CE = ce.create("CE"),
             stack = (new Error()).stack.split("\n"),
-            e = new CustomE("msg"),
+            e = new CE("msg"),
             estack = e.stack.split("\n");
-        test.equals(estack[0], "CustomE: msg");
-        test.equals(estack[1].split("(")[0], stack[1].split("(")[0]);
-        test.equals(estack.slice(2, 5).join("\n"), stack.slice(2, 5).join("\n"));
+        if (stack.length > estack.length) {
+            stack = stack.slice(0, estack.length);
+        }
+        test.equals(estack[0], "CE: msg");
+        test.equals(estack[1].split("(")[0], stack[1].split("(")[0]); // the current filename
+        test.equals(estack.slice(2).join("\n"), stack.slice(2).join("\n")); // the rest of the stack
         test.done();
     },
 
@@ -81,70 +94,94 @@ module.exports = {
         test.equals(e.message, "def");
         test.ok(e instanceof Base);
         test.throws(function () {
-            e = new Base();
+            var e = new Base();
         }, ce.AbstractError);
         test.done();
     },
 
-    testArgumentsAsParams: function (test) {
-        var CustomE, e;
-        CustomE = ce.create({
-            name: "MyError",
-            parent: TypeError,
-            defmessage: "default message"
-        });
-        e = new CustomE();
+    testCreateSingleArgument: function (test) {
+        var CE = ce.create({
+                name: "MyError",
+                parent: TypeError,
+                defmessage: "default message"
+            }),
+            e = new CE();
         test.ok(e instanceof TypeError);
         test.equals(e.name, "MyError");
         test.equals(e.message, "default message");
         test.done();
     },
 
+    testInheritSingleArgument: function (test) {
+        var Parent = ce.create("Parent"),
+            Child = Parent.inherit({
+                name: "Child",
+                parent: Parent,
+                defmessage: "def message"
+            }),
+            e = new Child();
+        test.ok(e instanceof Parent);
+        test.equals(e.name, "Child");
+        test.equals(e.message, "def message");
+        test.done();
+    },
+
     testCustomConstruct: function (test) {
-        var PropNotFound, e;
-        PropNotFound = ce.create({
-            name: "PropNotFound",
-            construct: function (container, property) {
-                this.container = container;
-                this.property = property;
-                this.message = "'" + property + "' is not found in '" + container + "'";
-            }
-        });
-        e = new PropNotFound("MyService", "undef");
+        var PropNotFound = ce.create({
+                name: "PropNotFound",
+                construct: function (container, property) {
+                    this.container = container;
+                    this.property = property;
+                    this.message = "'" + property + "' is not found in '" + container + "'";
+                }
+            }),
+            e = new PropNotFound("MyService", "undef");
         test.equals(e.name, "PropNotFound");
         test.equals(e.container, "MyService");
         test.equals(e.property, "undef");
         test.equals(e.message, "'undef' is not found in 'MyService'");
         test.done();
     },
-    
-    testInheritCustomConstruct: function (test) {
-        var One = ce.create({
-                name: "One",
+
+    testCustomConstructInherit: function (test) {
+        var Parent = ce.create({
+                name: "Parent",
                 construct: function (a, b) {
                     this.a = a;
                     this.b = b;
                     this.message = a + " + " + b + " = " + (a + b);
                 }
             }),
-            Two = One.inherit("Two"),
-            Three = Two.inherit({
-                name: "Three",
-                construct: function (a, b, c) {
-                    this.parent(a, b);
-                    this.c = c;
-                }
-            }),
-            e2 = new Two(1, 2),
-            e3 = new Three(3, 4, 5);
-        test.equals(e2.message, "1 + 2 = 3");
-        test.equals(e3.a, 3);
-        test.equals(e3.b, 4);
-        test.equals(e3.c, 5);
+            Child = Parent.inherit("Child"),
+            e = new Child(1, 2);
+        test.equals(e.a, 1);
+        test.equals(e.message, "1 + 2 = 3");
         test.done();
     },
 
-    testInheritCustomConstructParent: function (test) {
+    testExecParentConstruct: function (test) {
+        var Parent = ce.create({
+                name: "Parent",
+                construct: function (a, b) {
+                    this.a = a;
+                    this.b = b;
+                    this.message = a + " + " + b + " = " + (a + b);
+                }
+            }),
+            Child = Parent.inherit({
+                name: "Child",
+                construct: function (a, b, c) {
+                    this.parent(a, b);
+                    this.c = c;
+                    this.message = this.a + ":" + this.b + ":" + this.c;
+                }
+            }),
+            e = new Child(1, 2, 3);
+        test.equals(e.message, "1:2:3");
+        test.done();
+    },
+
+    testParentHasNoCustomConstruct: function (test) {
         var One = ce.create({
                 name: "One",
                 construct: function (a) {
