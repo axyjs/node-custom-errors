@@ -3,7 +3,7 @@
  */
 "use strict";
 
-var ce = require("../");
+var ce = require("../index.js");
 
 module.exports = {
 

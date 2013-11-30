@@ -3,7 +3,7 @@
  */
 "use strict";
 
-var ce = require("../");
+var ce = require("../index.js");
 
 module.exports = {
 
@@ -141,6 +141,27 @@ module.exports = {
         test.equals(e3.a, 3);
         test.equals(e3.b, 4);
         test.equals(e3.c, 5);
+        test.done();
+    },
+
+    testInheritCustomConstructParent: function (test) {
+        var One = ce.create({
+                name: "One",
+                construct: function (a) {
+                    this.parent();
+                    this.a = a;
+                }
+            }),
+            Two = ce.create("Two"),
+            Three = Two.inherit({
+                name: "Three",
+                construct: function (b) {
+                    this.parent();
+                    this.b = b;
+                }
+            });
+        test.equals((new One(1)).a, 1);
+        test.equals((new Three(2)).b, 2);
         test.done();
     }
 };
