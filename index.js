@@ -79,7 +79,9 @@ function create(name, parent, defmessage, abstract, construct) {
 
 helpers = {
     /**
-     * CustomErrors#parent
+     * Execute the parent constructor
+     *
+     * @name CustomErrors#parent
      */
     parent: function parent() {
         var ce = this.constructor.ce;
@@ -92,7 +94,15 @@ helpers = {
     },
 
     /**
-     * CustomErrors.inherit
+     * Inherit from this class
+     *
+     * @name CustomErrors.inherit
+     * @public
+     * @param {(String|Object)} name
+     * @param {String} [defmessage]
+     * @param {Boolean} [abstract]
+     * @param {Function} [construct]
+     * @return {Function}
      */
     inherit: function inherit(name, defmessage, abstract, construct) {
         if (typeof name === "object") {
@@ -103,8 +113,18 @@ helpers = {
     }
 };
 
+/**
+ * Can not instantiate abstract exceptions
+ *
+ * @class module.AbstractError
+ * @augments Error
+ */
 AbstractError = create({
     name: "customErrors.AbstractError",
+    /**
+     * @constructs
+     * @param {String} errorname
+     */
     construct: function (errorname) {
         this.errorname = errorname;
         this.message = "Error " + errorname + " is abstract";
@@ -112,9 +132,10 @@ AbstractError = create({
 });
 
 /**
- * Block of errors
+ * Class of errors block
  *
- * @constructor
+ * @class Block
+ * @exports
  * @param {Object} errors
  *        a dictionary "error name" => "parameters" (mixed)
  * @param {String} [namespace]
@@ -148,6 +169,8 @@ function Block(errors, namespace, base, lazy) {
 /**
  * Get an error object from the block
  *
+ * @name Block#get
+ * @public
  * @param {String} name
  * @return {Function}
  * @throws {Block.ErrorNotFound}
@@ -206,6 +229,8 @@ Block.prototype.get = function (name) {
 /**
  * Throw an error
  *
+ * @name Block#raise
+ * @public
  * @param {String} name
  * @param {String} [message]
  * @throws {Block.ErrorNotFound}
@@ -218,6 +243,8 @@ Block.prototype.raise = function (name, message) {
 /**
  * Create all errors
  *
+ * @name Block#createAll
+ * @public
  * @return {void}
  */
 Block.prototype.createAll = function () {
@@ -236,6 +263,8 @@ Block.prototype.createAll = function () {
 
 /**
  * Get the base error class of the block
+ *
+ * @name Block#getBase
  * @private
  * @return {Function}
  */
@@ -251,8 +280,26 @@ Block.prototype.getBase = function () {
     return base;
 };
 
+/**
+ * Flag, what all exceptions are created
+ *
+ * @name Block#created
+ * @type {Boolean}
+ */
+Block.prototype.created = false;
+
+/**
+ * Requested exception is not found
+ *
+ * @class Block.ErrorNotFound
+ * @augments Error
+ */
 Block.ErrorNotFound = create({
     name: "customErrors.ErrorNotFound",
+    /**
+     * @constructs
+     * @param {String} errorname
+     */
     construct: function (errorname) {
         this.errorname = errorname;
         this.message = "Error " + errorname + " is not found in block";
