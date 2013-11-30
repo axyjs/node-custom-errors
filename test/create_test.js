@@ -94,7 +94,7 @@ module.exports = {
         test.equals(e.message, "def");
         test.ok(e instanceof Base);
         test.throws(function () {
-            var e = new Base();
+            return new Base();
         }, ce.AbstractError);
         test.done();
     },

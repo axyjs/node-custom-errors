@@ -7,88 +7,162 @@ var ce = require("../index.js");
 
 module.exports = {
 
-    testCreate: function (test) {
-        /* jshint maxstatements: 30 */
-        var errors, block, e;
-        errors = {
-            "One": true,
-            "Two": "One",
-            "Three": false,
-            "Four": TypeError,
-            "Five": ["One", "def message"],
-            "Six": [true, "", true]
-        };
-        block = new ce.Block(errors, "my.ns");
+    testCreateTrue: function (test) {
+        var errors = {
+                "One": true
+            },
+            block = new ce.Block(errors),
+            e;
         test.ok(block.created);
         test.equals(typeof block.Base, "function");
         test.equals(typeof block.One, "function");
-        test.equals(typeof block.Two, "function");
-        test.equals(typeof block.Three, "function");
-        test.equals(typeof block.Four, "function");
-        test.equals(typeof block.Five, "function");
-        e = new block.Two();
-        test.ok(e instanceof Error);
+        e = new block.One();
         test.ok(e instanceof block.Base);
-        test.ok(e instanceof block.One);
-        test.ok(e instanceof block.Two);
-        test.equals(e.name, "my.ns.Two");
-        e = new block.Three();
-        test.ok(e instanceof Error);
+        test.done();
+    },
+
+    testCreateFalse: function (test) {
+        var errors = {
+                "One": true,
+                "Two": false,
+            },
+            block = new ce.Block(errors),
+            e;
+        test.equals(typeof block.Two, "function");
+        e = new block.Two();
         test.ok(!(e instanceof block.Base));
-        e = new block.Five();
+        test.done();
+    },
+
+    testCreateParentName: function (test) {
+        var errors = {
+                "One": true,
+                "Two": "One"
+            },
+            block = new ce.Block(errors),
+            e;
+        test.equals(typeof block.One, "function");
+        e = new block.Two();
         test.ok(e instanceof block.One);
+        test.notEqual(block.One, block.Two);
+        test.done();
+    },
+
+    testCreateDirectly: function (test) {
+        var errors = {
+                "One": TypeError
+            },
+            block = new ce.Block(errors);
+        test.equals(block.One, TypeError);
+        test.done();
+    },
+
+    testCreateList: function (test) {
+        var errors = {
+                "One": true,
+                "Two": ["One", "def message"]
+            },
+            block = new ce.Block(errors),
+            e = new block.Two();
+        test.ok(e instanceof block.One);
+        test.equals(e.name, "Two");
         test.equals(e.message, "def message");
-        test.equals(block.Four, TypeError);
+        test.done();
+    },
+
+    testCreateDict: function (test) {
+        var errors = {
+                "One": {
+                    abstract: true
+                },
+                "Two": {
+                    parent: "One",
+                    construct: function (a) {
+                        this.message = "" + (a * 2);
+                    }
+                }
+            },
+            block = new ce.Block(errors),
+            e = new block.Two(2);
+        test.ok(e instanceof block.One);
+        test.equals(e.message, "4");
         test.throws(function () {
-            e = new block.Base();
-        }, ce.AbstractError);
-        test.throws(function () {
-            e = new block.Six();
+            return new block.One();
         }, ce.AbstractError);
         test.done();
     },
 
-    testGetAndRaise: function (test) {
-        var errors, block;
-        errors = {
-            "One": true,
-            "Two": "One"
-        };
-        block = new ce.Block(errors, "my.ns");
-        test.equals(block.get("Two"), block.Two);
+    testNamespace: function (test) {
+        var errors = {
+                "One": true,
+                "Two": false,
+                "Three": ce.create("Three"),
+                "Four": ["Two", "defmessage"],
+                "Five": {
+                    name: "nFive"
+                }
+            },
+            block = new ce.Block(errors, "my.errors");
+        test.equals((new block.One()).name, "my.errors.One");
+        test.equals((new block.Two()).name, "my.errors.Two");
+        test.equals((new block.Three()).name, "Three");
+        test.equals((new block.Four()).name, "my.errors.Four");
+        test.equals((new block.Five()).name, "my.errors.Five");
+        test.done();
+    },
+
+    testGet: function (test) {
+        var errors = {
+                "One": true
+            },
+            block = new ce.Block(errors);
+        test.equals(block.get("One"), block.One);
+        test.equals(block.get("Base"), block.Base);
         test.throws(function () {
-            block.raise("Two", "two message");
-        }, block.Two, "two message");
-        test.throws(function () {
-            block.get("three");
+            block.get("Two");
         }, ce.Block.ErrorNotFound);
+        test.done();
+    },
+
+    testRaise: function (test) {
+        var errors = {
+                "One": true
+            },
+            block = new ce.Block(errors);
         test.throws(function () {
-            block.raise("Three", "three message");
+            block.raise("Base");
+        }, ce.AbstractError);
+        test.throws(function () {
+            block.raise("One");
+        }, block.One);
+        test.throws(function () {
+            block.raise("Two");
         }, ce.Block.ErrorNotFound);
         test.done();
     },
 
     testLazy: function (test) {
         /* jshint maxstatements: 30 */
-        var errors, block, e, Two;
-        errors = {
-            "One": true,
-            "Two": "One",
-            "Three": true
-        };
-        block = new ce.Block(errors, "", true, true);
+        var errors = {
+                "One": true,
+                "Two": "One",
+                "Three": true
+            },
+            block = new ce.Block(errors, "", true, true),
+            Two,
+            e;
         test.ok(!block.created);
         test.ok(!block.Base);
         test.ok(!block.One);
         test.ok(!block.Two);
         test.ok(!block.Three);
         Two = block.get("Two");
-        e = new Two();
         test.ok(!block.created);
         test.ok(block.Base);
         test.ok(block.One);
         test.ok(block.Two);
         test.ok(!block.Three);
+        e = new Two();
         test.ok(e instanceof block.Base);
         test.ok(e instanceof block.One);
         test.ok(e instanceof block.Two);
@@ -117,21 +191,19 @@ module.exports = {
         test.done();
     },
 
-    testOtherBase: function (test) {
-        var errors, block, e;
-        errors = {
-            "One": true,
-            "Two": "One"
-        };
-        block = new ce.Block(errors, "", "Root");
+    testBaseRename: function (test) {
+        var errors = {
+                "One": true
+            },
+            block = new ce.Block(errors, "", "Root"),
+            e = new block.One();
         test.ok(!block.Base);
         test.ok(block.Root);
-        e = new block.Two();
         test.ok(e instanceof block.Root);
         test.done();
     },
 
-    testWithoutBase: function (test) {
+    testBaseNone: function (test) {
         var errors, block, e;
         errors = {
             "One": true,
@@ -144,41 +216,14 @@ module.exports = {
         test.done();
     },
 
-    testDictParams: function (test) {
-        var errors, block, e;
-        errors = {
-            "One": true,
-            "Two": {
-                parent: "One",
-                defmessage: "def message"
-            },
-            "Three": {
-                construct: function (a) {
-                    this.a = a;
-                    this.message = "a = " + a;
-                }
-            }
-        };
-        block = new ce.Block(errors, "ns");
-        e = new block.Two();
-        test.ok(e instanceof block.One);
-        test.equals(e.message, "def message");
-        test.equals(e.name, "ns.Two");
-        e = new block.Three(2);
-        test.ok(e instanceof block.Base);
-        test.equals(e.a, 2);
-        test.equals(e.message, "a = 2");
-        test.equals(e.name, "ns.Three");
-        test.done();
-    },
-
     testLazyGetBase: function (test) {
-        var errors, block, Base, e, One;
-        errors = {
-            One: true
-        };
-        block = new ce.Block(errors, "ns", null);
-        Base = block.get("Base");
+        var errors = {
+                One: true
+            },
+            block = new ce.Block(errors, "ns", null),
+            Base = block.get("Base"),
+            One,
+            e;
         test.equals(typeof Base, "function");
         One = block.get("One");
         e = new One();
