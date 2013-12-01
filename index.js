@@ -44,7 +44,8 @@ function create(name, parent, defmessage, abstract, construct) {
         }
     }
     function CustomError(message) {
-        var stack;
+        Error.call(this);
+        Error.captureStackTrace(this, CustomError);
         if (abstract) {
             throw new AbstractError(name);
         }
@@ -55,9 +56,6 @@ function create(name, parent, defmessage, abstract, construct) {
                 this.message = message;
             }
         }
-        stack = (new Error()).stack.split("\n");
-        this.stack = name + (this.message ? (": " + this.message) : "");
-        this.stack += "\n" + stack.slice(2).join("\n");
     }
     CustomError.prototype = Object.create(parent.prototype);
     CustomError.prototype.constructor = CustomError;

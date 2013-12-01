@@ -78,9 +78,6 @@ module.exports = {
             stack = (new Error()).stack.split("\n"),
             e = new CE("msg"),
             estack = e.stack.split("\n");
-        if (stack.length > estack.length) {
-            stack = stack.slice(0, estack.length);
-        }
         test.equals(estack[0], "CE: msg");
         test.equals(estack[1].split("(")[0], stack[1].split("(")[0]); // the current filename
         test.equals(estack.slice(2).join("\n"), stack.slice(2).join("\n")); // the rest of the stack
