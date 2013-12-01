@@ -2,7 +2,7 @@
     "name": "node-custom-errors",
     "title": "Node.js custom errors",
     "description": "Creating custom exception classes",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "homepage": "https://github.com/axyjs/node-custom-errors",
     "author": {
         "name": "Oleg Grigoriev",
