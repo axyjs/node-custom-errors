@@ -1,7 +1,7 @@
 /**
  * Creating custom exception classes
  *
- * @version 0.1.4
+ * @version 0.1.5
  * @author Oleg Grigoriev <go.vasac@gmail.com>
  * @license MIT https://github.com/axyjs/node-custom-errors/blob/master/LICENSE
  */
@@ -62,7 +62,6 @@ function create(name, parent, defmessage, abstract, construct) {
     CustomError.prototype.name = name;
     CustomError.prototype.message = defmessage;
     CustomError.prototype.parent = helpers.parent;
-    CustomError.name = name;
     CustomError.ce = {
         parent: parent,
         defmessage: defmessage,

@@ -2,7 +2,7 @@
 
 Platform: node.js
 
-Current version: 0.1.4
+Current version: 0.1.5
 
 * [Documentation in English](https://github.com/axyjs/node-custom-errors/wiki/en)
 * [Documentation in Russian](https://github.com/axyjs/node-custom-errors/wiki/ru)
