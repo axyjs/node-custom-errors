@@ -61,7 +61,7 @@ module.exports = {
         test.equals(e2.message, "message");
         test.done();
     },
-    
+
     testDefmessageInherit: function (test) {
         var One = ce.create("One", null, "one def"),
             Two = One.inherit("Two"),
@@ -196,6 +196,52 @@ module.exports = {
             });
         test.equals((new One(1)).a, 1);
         test.equals((new Three(2)).b, 2);
+        test.done();
+    },
+
+    testLevel: function (test) {
+        var BaseError,
+            SapError,
+            SapOperationError,
+            sapInstance,
+            opInstance;
+
+        BaseError = ce.create({
+            name: 'BaseError',
+            abstract: true,
+            construct: function (err) {
+                this.inner = err;
+            }
+        });
+
+        SapError = ce.create({
+            name: 'SapError',
+            parent: BaseError,
+            construct: function construct(err, context) {
+                BaseError.init(this, err);
+                this.context = context || undefined;
+            }
+        });
+
+        SapOperationError = ce.create({
+            name: 'SapOperationError',
+            parent: SapError,
+            construct: function construct(err, context, errors) {
+                SapError.init(this, err, context);
+                this.errors = errors || undefined;
+            }
+        });
+
+        sapInstance = new SapError('err', 'context');
+        opInstance = new SapOperationError('err2', 'context2', ["message"]);
+
+        test.equals(sapInstance.inner, "err");
+        test.equals(sapInstance.context, "context");
+
+        test.equals(opInstance.inner, "err2");
+        test.equals(opInstance.context, "context2");
+        test.equals(opInstance.errors[0], "message");
+
         test.done();
     }
 };

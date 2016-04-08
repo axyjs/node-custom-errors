@@ -8,7 +8,10 @@
 
 "use strict";
 
-var Block, AbstractError, helpers;
+var AbstractError,
+    helpers,
+    call = Function.prototype.call,
+    slice = Array.prototype.slice;
 
 /**
  * Create a custom error class
@@ -70,6 +73,9 @@ function create(name, parent, defmessage, abstract, construct) {
     CustomError.inherit = helpers.inherit;
     CustomError.toString = function () {
         return "[Error class " + name + "]";
+    };
+    CustomError.init = function init() {
+        return call.apply(construct, slice.call(arguments));
     };
     return CustomError;
 }
